@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="top.january147.blecontroller">
+    <uses-permission android:name="android.permission.BLUETOOTH" /> <!-- 允许连接已配对过的设备-->
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" /> <!-- 允许扫描和连接新的设备-->
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/> <!-- 需要BLE支持-->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- 因为扫描蓝牙会暴露位置信息， 所以需要申请位置权限才能扫描蓝牙-->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <application
+        android:name=".MyApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <service android:name=".BleIntentService"/>
+    </application>
+
+</manifest>
