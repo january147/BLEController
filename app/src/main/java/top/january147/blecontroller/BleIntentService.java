@@ -9,7 +9,6 @@ import top.january147.blecontroller.Adapter.BleAdapter;
 public class BleIntentService extends IntentService {
     private static final String TAG = "BleIntentService";
 
-
     public BleIntentService() {
         super("BleIntentService");
     }
@@ -33,6 +32,4 @@ public class BleIntentService extends IntentService {
                 Log.d(TAG, "onHandleIntent: unknown actoin");
         }
     }
-
-
 }

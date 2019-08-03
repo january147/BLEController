@@ -21,6 +21,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ScanResultActivity" android:label="扫描结果"></activity>
         <service android:name=".BleIntentService"/>
     </application>
 

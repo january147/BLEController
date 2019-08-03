@@ -12,9 +12,11 @@ import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
@@ -29,6 +31,7 @@ public class BleAdapter {
     BluetoothGatt mBluetoothGatt;
     BluetoothLeScanner mBluetoothLeScanner;
     BluetoothGattCharacteristic mChar;
+    List<BluetoothDevice> scanResults;
 
     public boolean mScanning = false;
 
@@ -36,10 +39,11 @@ public class BleAdapter {
         mBluetoothAdapter = bluetoothAdapter;
         mBluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
         context = argContext;
+        scanResults = new ArrayList<>();
     }
 
     // 列出所有Service及其characteristic的uuid
-    public static void ListSerivceUUID(BluetoothGatt gatt) {
+    public static void listSerivceUUID(BluetoothGatt gatt) {
         List<BluetoothGattService> services = gatt.getServices();
         for(BluetoothGattService service : services) {
             UUID service_uuid = service.getUuid();
@@ -48,6 +52,12 @@ public class BleAdapter {
                 UUID characteristic_uuid = characteristic.getUuid();
                 Log.d(TAG, "onServicesDiscovered: characteristic id is " + characteristic_uuid);
             }
+        }
+    }
+
+    public void listResult() {
+        for (BluetoothDevice device : scanResults) {
+            Log.d(TAG, "listResult: " + device.getName() + " " + device.getAddress());
         }
     }
 
@@ -119,10 +129,23 @@ public class BleAdapter {
             super.onScanResult(callbackType, result);
             BluetoothDevice mDevice = result.getDevice();
             Log.d(TAG, "onScanResult:" + mDevice.getName());
+            if (scanResults.contains(mDevice)) {
+                Log.d(TAG, "onScanResult: repeat");
+            } else {
+                scanResults.add(mDevice);
 
-            if ("bleTrans".equals(mDevice.getName())) {
-                mBluetoothLeScanner.stopScan(this);
-                mBluetoothGatt = mDevice.connectGatt(BleAdapter.this.context, false, gattCallback);
+                Intent broadcastTest = new Intent("ble.SCAN_RESULT");
+                broadcastTest.putExtra("message", "find a device");
+                broadcastTest.putExtra("device", mDevice.getName());
+                context.sendBroadcast(broadcastTest);
+
+                // 一段时间没有接收到广播则删除该项目
+                new Timer().schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        scanResults.remove(0);
+                    }
+                }, 1000 * 20);
             }
         }
 
@@ -141,6 +164,10 @@ public class BleAdapter {
             Log.d(TAG, "onScanFailed:" + String.valueOf(errorCode));
         }
     };
+
+    public boolean isEnabled() {
+        return mBluetoothAdapter.isEnabled();
+    }
 
     public boolean scanBleDevice(boolean enable) {
 
@@ -202,6 +229,17 @@ public class BleAdapter {
         mBluetoothGatt.close();
         reset();
         return true;
+    }
+
+    public boolean connect(String name) {
+        for(BluetoothDevice mDevice : scanResults) {
+            if (name.equals(mDevice.getName())) {
+                mBluetoothLeScanner.stopScan(mBleScanCallback);
+                mBluetoothGatt = mDevice.connectGatt(BleAdapter.this.context, false, gattCallback);
+                return true;
+            }
+        }
+        return false;
     }
 
     private void reset() {
