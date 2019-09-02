@@ -61,6 +61,10 @@ public class BleAdapter {
         }
     }
 
+    public List<BluetoothDevice> getScanResults() {
+        return scanResults;
+    }
+
     BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
@@ -117,6 +121,10 @@ public class BleAdapter {
                 Log.d(TAG, "onCharacteristicChanged: error coding");
                 message = Arrays.toString(data);
             }
+            Intent receive_message_intent = new Intent();
+            receive_message_intent.setAction("ble.MESSAGE");
+            receive_message_intent.putExtra("message", message);
+            context.sendBroadcast(receive_message_intent);
             Log.d(TAG, "onCharacteristicChanged: read success:" + message);
         }
 
@@ -134,10 +142,12 @@ public class BleAdapter {
             } else {
                 scanResults.add(mDevice);
 
+                /*
                 Intent broadcastTest = new Intent("ble.SCAN_RESULT");
                 broadcastTest.putExtra("message", "find a device");
                 broadcastTest.putExtra("device", mDevice.getName());
                 context.sendBroadcast(broadcastTest);
+                */
 
                 // 一段时间没有接收到广播则删除该项目
                 new Timer().schedule(new TimerTask() {

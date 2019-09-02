@@ -8,5 +8,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="onButtonShowResultClick"
-        android:text="查看结果" />
+        android:text="刷新" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#E7E3E3"
+        android:text="TextView" />
 </LinearLayout>

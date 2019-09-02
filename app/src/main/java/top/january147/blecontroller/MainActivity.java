@@ -10,8 +10,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Timer;
@@ -30,7 +33,8 @@ public class MainActivity extends AppCompatActivity {
     class BleBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "onReceive: find device: " + intent.getStringExtra("device"));
+            TextView display = MainActivity.this.findViewById(R.id.textView2);
+            display.append(intent.getStringExtra("message"));
         }
     }
 
@@ -39,9 +43,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         enableBluetoothAdapter();
-        IntentFilter bleBroadcastfilter = new IntentFilter("ble.SCAN_RESULT");
+        IntentFilter bleBroadcastfilter = new IntentFilter("ble.MESSAGE");
         mBleBroadcastReceiver = new BleBroadcastReceiver();
         registerReceiver(mBleBroadcastReceiver, bleBroadcastfilter);
+
+        TextView display = findViewById(R.id.textView2);
+        display.setMovementMethod(ScrollingMovementMethod.getInstance());
+        display.setText("");
 
     }
 
@@ -90,8 +98,8 @@ public class MainActivity extends AppCompatActivity {
         // 设备不支持蓝牙
         if (mBluetoothAdapter == null) {
             Toast.makeText(getApplication(), "该设备不支持蓝牙, 应用即将退出", Toast.LENGTH_SHORT).show();
-            Timer timer = new Timer();
-            timer.schedule(new TimerTask() {
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     finish();
@@ -188,6 +196,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void onButtonConnectClick(View v) {
         mBle.connect("bleTrans");
+    }
+
+    public void onButtonClearClick(View v) {
+        TextView display = findViewById(R.id.textView2);
+        display.setText("");
     }
 
 
